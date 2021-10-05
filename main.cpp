@@ -61,7 +61,7 @@ int main()
             //船Ver    
             pc.printf("%ld:%ld:%ld.%ld,",Lat/10000000,(Lat%10000000)*60/10000000,(Lat%10000000)*60%10000000*60/10000000,(Lat%10000000)*60%10000000*60%10000000/100);
             pc.printf("%ld:%ld:%ld.%ld,",Long/10000000,(Long%10000000)*60/10000000,(Long%10000000)*60%10000000*60/10000000,(Long%10000000)*60%10000000*60%10000000/100);
-            pc.printf("%ld.%ld",Alt/1000,Alt%1000);
+            pc.printf("%ld.%ld,",Alt/1000,Alt%1000);
             pc.printf("%d.%d,",Temp/100,Temp%100);
             pc.printf("%u.%u,",Hum/100,Hum%100);
             pc.printf("%u.%u,",Press/10,Press%10);
