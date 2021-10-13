@@ -1,8 +1,15 @@
+//地上局用
 #include "mbed.h"
 
 Serial LoRa ( D1 , D0);
 Serial pc(SERIAL_TX , SERIAL_RX);
-DigitalOut led(LED1);
+DigitalOut ledY(PB_3);
+DigitalOut ledB(PB_4);
+DigitalOut ledR(PA_15);
+DigitalOut LoRaRESET(PA_8);
+DigitalOut Button1(PB_1);
+DigitalOut Button2(PB_0);
+DigitalOut Button3(PA_1);
 
 uint8_t read_c[40];
 int count=0 , timer_r=0;
@@ -17,11 +24,13 @@ int main()
     uint16_t Hum , Press;
     long Lat , Long , Alt;
     int16_t RSSI;
+    uint8_t data_length=1;
     LoRa.baud(115200);
     pc.baud(9600);
+    LoRaRESET=1;
     wait(4);
     pc.printf("LoRa decoder\r\n");
-    pc.printf("Lat,Long,Alt,Temp,Hum,Press,RSSI\r\n");
+    //pc.printf("Lat,Long,Alt,Temp,Hum,Press,RSSI\r\n");
     LoRa.attach(&LoRa_Get,Serial::RxIrq);
     while(1) 
     {
@@ -49,35 +58,44 @@ int main()
             Alt = (long)((read_c[22]<<24)+(read_c[21]<<16)+(read_c[20]<<8)+read_c[19]);
             
             //Amulapo Ver
-            /*pc.printf("%d.%d,",Temp/100,Temp%100); 
+            pc.printf("%d.%d,",Temp/100,abs(Temp%100)); 
             pc.printf("%u.%u,",Hum/100,Hum%100);
             pc.printf("%u.%u,",Press/10,Press%10);
             pc.printf("%ld.%ld,",Lat/10000000,Lat%10000000);
             pc.printf("%ld.%ld,",Long/10000000,Long%10000000);
             pc.printf("%ld.%ld",Alt/1000,Alt%1000);
             pc.printf(",%d",RSSI);
-            pc.printf("\r\n");*/
+            pc.printf("\r\n");
             
-            //船Ver    
+            //船Ver
+            /*
             pc.printf("%ld:%ld:%ld.%ld,",Lat/10000000,(Lat%10000000)*60/10000000,(Lat%10000000)*60%10000000*60/10000000,(Lat%10000000)*60%10000000*60%10000000/100);
             pc.printf("%ld:%ld:%ld.%ld,",Long/10000000,(Long%10000000)*60/10000000,(Long%10000000)*60%10000000*60/10000000,(Long%10000000)*60%10000000*60%10000000/100);
             pc.printf("%ld.%ld,",Alt/1000,Alt%1000);
-            pc.printf("%d.%d,",Temp/100,Temp%100);
+            pc.printf("%d.%d,",Temp/100,abs(Temp%100));
             pc.printf("%u.%u,",Hum/100,Hum%100);
             pc.printf("%u.%u,",Press/10,Press%10);
             pc.printf("%d",RSSI);
             pc.printf("\r\n");
+            */
         }
         else if(count>40) NVIC_SystemReset();    //割り込み受信暴走リセット
         count=0;
+        if(Button3==1){
+            ledY = 1;
+            while(Button3==1);
+            LoRa.putc(data_length);
+            LoRa.putc('R');
+            ledY = 0;
+        }
     }
 }
 
 void LoRa_Get(){
     timer_r=0;
-    led=1;
+    ledB=1;
     c=LoRa.getc();
     read_c[count]=c;
     count++;
-    led=0;
+    ledB=0;
     }
